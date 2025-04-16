@@ -1,10 +1,19 @@
-module.exports = (options, app) => {
+import {path} from '@vuepress/utils'
+
+
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export default (options, app) => {
   return {
-    name: "audio-markdown",
+    name: "vp-very-simple-music-plugin",
 
     extendsMarkdown: (md) => {
       // 添加自定义规则
-      md.inline.ruler.before("emphasis", "audio", (state, silent) => {
+      md.inline.ruler.before("emphasis", "audio_inline", (state, silent) => {
         const start = state.pos;
         const marker = "@audio(";
 
@@ -30,10 +39,10 @@ module.exports = (options, app) => {
       // 渲染器
       md.renderer.rules.audio_inline = (tokens, idx) => {
         const src = tokens[idx].content.trim();
-        return `<CustomAudio src="${src}" />`;
+        return `<audio src="${src}" />`;
       };
     },
 
-    clientConfigFile: require.resolve("./audio-mark.client.js"),
+    clientConfigFile: path.resolve(__dirname,"./client.js"),
   };
 };
