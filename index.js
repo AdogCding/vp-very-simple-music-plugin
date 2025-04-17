@@ -39,7 +39,7 @@ export default (options, app) => {
       // 渲染器
       md.renderer.rules.audio_inline = (tokens, idx) => {
         const src = tokens[idx].content.trim();
-        return `<audio src="${src}" />`;
+        return `<audio src="${src}"></audio>`;
       };
     },
 
