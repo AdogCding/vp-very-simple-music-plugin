@@ -58,17 +58,7 @@ const transformStyle = computed(() => {
 
 <template>
   <div>
-    <a-modal ref="modalRef" v-model:open="open" :wrap-style="{ overflow: 'hidden' }" @ok="handleOk">
-      <audio src="https://pub-61e582de589c4524a18c1a65269384e8.r2.dev/I_remember_your_looking.mp3"></audio>
-      <template #title>
-        <div ref="modalTitleRef" style="width: 100%; cursor: move">Draggable Modal</div>
-      </template>
-      <template #modalRender="{ originVNode }">
-        <div :style="transformStyle">
-          <component :is="originVNode" />
-        </div>
-      </template>
-    </a-modal>
+
   </div>
 </template>
 
