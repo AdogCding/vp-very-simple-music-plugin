@@ -15,5 +15,10 @@ export default (options, app) => {
     },
 
     clientConfigFile: path.resolve(__dirname,"./client.js"),
+    define: () => {
+      return {
+        "VUE_APP_VERY_SIMPLE_MUSIC_PLUGIN": JSON.stringify(options),
+      };
+    },
   };
 };
