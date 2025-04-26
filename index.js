@@ -1,4 +1,4 @@
-import {path} from '@vuepress/utils'
+import { path } from '@vuepress/utils'
 
 
 import { fileURLToPath } from "url";
@@ -14,10 +14,11 @@ export default (options, app) => {
     extendsMarkdown: () => {
     },
 
-    clientConfigFile: path.resolve(__dirname,"./client.js"),
+    clientConfigFile: path.resolve(__dirname, "./client.js"),
     define: () => {
       return {
-        "VUE_APP_VERY_SIMPLE_MUSIC_PLUGIN": JSON.stringify(options),
+        "VUE_APP_VERY_SIMPLE_MUSIC_PLUGIN_MUSIC_LIST": JSON.stringify(options["musicsList"]),
+        "VUE_APP_VERY_SIMPLE_MUSIC_PLUGIN_MUSIC_PLAYER_PROPS": JSON.stringify(options["musicPlayerProps"])
       };
     },
   };
