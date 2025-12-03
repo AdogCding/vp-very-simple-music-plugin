@@ -23,7 +23,8 @@
     "@ant-design/icons-vue": "^7.0.1",
     "@vuepress/utils": "^2.0.0-rc.19",
     "@vueuse/core": "^13.1.0",
-    "ant-design-vue": "^4.2.6"
+    "ant-design-vue": "^4.2.6",
+    "lucide-vue-next": "^0.555.0"
   },
   "devDependencies": {
     "@vuepress/utils": "^2.0.0-rc.19",

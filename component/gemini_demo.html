@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ant Design 风格音乐播放器 (纯 CSS)</title>
+    <!-- 引入 Lucide Icons 用于控制按钮 -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        /* ==================================== */
+        /* 1. 全局配置与 Ant Design 变量 */
+        /* ==================================== */
+        :root {
+            --primary-color: #1677ff; /* Ant Design Blue */
+            --primary-hover: #4096ff;
+            --border-color: #d9d9d9;
+            --bg-light: #f5f5f5; /* 类似 AntD 的背景色 */
+            --bg-card: #ffffff;
+            --text-dark: #333;
+            --text-light: #666;
+            --radius: 8px;
+            --shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 1px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        /* ==================================== */
+        /* 2. 播放器主容器 (已优化：新增 min-width) */
+        /* ==================================== */
+        .player-card {
+            width: 100%;
+            max-width: 1200px;
+            /* 确保在手机上内容不会被过度压缩 */
+            min-width: 360px; 
+            background-color: var(--bg-card);
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius);
+            padding: 32px;
+        }
+
+        .player-header {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* ==================================== */
+        /* 3. 核心布局 (响应式) */
+        /* ==================================== */
+        .player-core {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        @media (min-width: 1024px) {
+            .player-core {
+                flex-direction: row;
+            }
+            .player-section {
+                width: 50%;
+            }
+        }
+
+        /* ==================================== */
+        /* 4. 专辑封面与歌词区域 */
+        /* ==================================== */
+        .album-art-wrapper {
+            background-color: #e6f7ff; /* light blue background */
+            aspect-ratio: 1 / 1;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .album-art {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            border-radius: var(--radius);
+        }
+
+        .lyrics-container {
+            background-color: #f6f6f6;
+            padding: 16px;
+            border-radius: var(--radius);
+            height: 256px;
+            overflow-y: scroll;
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .lyrics-header {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .lyrics-display {
+            text-align: center;
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .current-lyric {
+            color: var(--primary-color);
+            font-weight: 600;
+            transform: scale(1.05);
+            transition: all 0.2s ease-in-out;
+            font-size: 18px;
+        }
+        
+        /* 自定义滚动条美化 */
+        .lyrics-container::-webkit-scrollbar,
+        .playlist-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .lyrics-container::-webkit-scrollbar-thumb,
+        .playlist-container::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 10px;
+        }
+        .lyrics-container::-webkit-scrollbar-thumb:hover,
+        .playlist-container::-webkit-scrollbar-thumb:hover {
+            background-color: #a8a8a8;
+        }
+
+        /* ==================================== */
+        /* 5. 播放列表区域 */
+        /* ==================================== */
+        .playlist-header {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+
+        .playlist-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            height: 384px;
+            overflow-y: scroll;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+            border-top: none; /* AntD 列表通常没有顶部分隔线 */
+        }
+        
+        .track-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            cursor: pointer;
+            transition: background-color 0.15s, box-shadow 0.15s;
+            border-bottom: 1px solid #f0f0f0; /* 列表分割线 */
+        }
+
+        .track-item:last-child {
+            border-bottom: none;
+        }
+
+        .track-item:hover {
+            background-color: var(--primary-color, #1677ff)10; /* Primary color with 10% opacity */
+        }
+        
+        .track-info-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        .track-index {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-light);
+            width: 24px;
+            text-align: center;
+        }
+
+        .track-titles {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .track-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-dark);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .track-artist {
+            font-size: 12px;
+            color: var(--text-light);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .track-duration {
+            font-size: 12px;
+            color: #ccc;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        /* 播放列表高亮状态 */
+        .track-item.is-playing {
+            background-color: rgba(22, 119, 255, 0.1);
+            box-shadow: inset 3px 0 0 var(--primary-color); /* 左侧指示条 */
+        }
+        .track-item.is-playing .track-title,
+        .track-item.is-playing .track-artist {
+            color: var(--primary-color);
+        }
+
+        /* ==================================== */
+        /* 6. 底部控制栏 */
+        /* ==================================== */
+        .control-bar {
+            background-color: var(--bg-light);
+            padding: 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            margin-top: 24px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+        
+        .current-track-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .track-details {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .track-details-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .track-details-artist {
+            font-size: 14px;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 进度条样式 */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .time-label {
+            font-size: 12px;
+            color: var(--text-light);
+            width: 40px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .time-label.right {
+            text-align: left;
+        }
+        
+        .progress-bar-input {
+            flex-grow: 1;
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+        }
+        .progress-bar-input::-webkit-slider-thumb {
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            transition: all 0.2s;
+        }
+        .progress-bar-input:hover::-webkit-slider-thumb {
+            width: 14px;
+            height: 14px;
+            box-shadow: 0 0 0 4px rgba(22, 119, 255, 0.2);
+        }
+
+        /* 播放控制与音量 (已优化：允许换行) */
+        .controls-and-volume {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            /* 允许在小屏幕上自动换行 */
+            flex-wrap: wrap; 
+        }
+        
+        @media (max-width: 480px) {
+            /* 确保在非常小的手机屏幕上，控制组和音量控制能换行对齐 */
+            .controls-and-volume {
+                justify-content: center; /* 居中对齐 */
+                gap: 16px; /* 增加换行后的间距 */
+            }
+            .volume-control {
+                 /* 在窄屏上，音量控制占据全部宽度 */
+                width: 100%; 
+                justify-content: center;
+            }
+            .controls-group {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .control-button {
+            border: none;
+            background: none;
+            color: var(--text-light);
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: color 0.15s, background-color 0.15s;
+        }
+        .control-button:hover {
+            color: var(--primary-color);
+            background-color: rgba(22, 119, 255, 0.05);
+        }
+        
+        .play-pause-button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 16px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(22, 119, 255, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .play-pause-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(22, 119, 255, 0.7);
+            background-color: var(--primary-hover);
+        }
+        .play-pause-button svg {
+            fill: white;
+        }
+
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            /* 移除固定的 160px 宽度，让它随内容变化 */
+        }
+        .volume-icon {
+            color: var(--text-light);
+        }
+        
+        .volume-bar-input {
+            flex-grow: 1;
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+        }
+        .volume-bar-input::-webkit-slider-thumb {
+            appearance: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            /* 修复：添加回退值 #1677ff 以确保在伪元素中样式能正确加载 */
+            background: var(--primary-color, #1677ff);
+        }
+        .volume-bar-input:hover::-webkit-slider-thumb {
+             box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.2);
+        }
+
+        /* 隐藏原生的音频元素 */
+        #audio-player {
+            display: none;
+        }
+
+        /* ========== Gemini Analysis Panel Styles ========== */
+        .analysis-panel {
+            position: fixed;
+            bottom: 120px; /* 放在控制栏上方 */
+            right: 20px;
+            width: 320px;
+            max-height: 450px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: none; 
+            flex-direction: column;
+        }
+
+        .analysis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .analysis-content {
+            padding: 16px;
+            overflow-y: auto;
+            font-size: 14px;
+            color: var(--text-dark);
+            flex-grow: 1;
+        }
+        .analysis-content p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .analysis-sources {
+            font-size: 10px;
+            padding: 8px 16px;
+            border-top: 1px solid #f0f0f0;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+        .analysis-sources a {
+            color: var(--primary-color);
+            text-decoration: none;
+            word-break: break-all;
+        }
+        .analysis-sources a:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading Spinner Style */
+        .spinner {
+            border: 4px solid rgba(22, 119, 255, 0.2);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 主音乐播放器容器 (Ant Design Card 风格) -->
+    <div id="music-player-app" class="player-card">
+        <h1 class="player-header">
+            🎧 音乐播放器 (纯 CSS AntD Style)
+        </h1>
+
+        <!-- 播放器核心区域 -->
+        <div class="player-core">
+            
+            <!-- 左侧: 专辑封面与歌词显示 -->
+            <div class="player-section" style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- 专辑封面 Placeholder -->
+                <div class="album-art-wrapper">
+                    <div class="album-art" style="background-image: url('https://placehold.co/500x500/1677ff/ffffff?text=Album+Art');">
+                    </div>
+                </div>
+
+                <!-- 歌词显示区域 -->
+                <div class="lyrics-container">
+                    <p class="lyrics-header">当前歌词：</p>
+                    <div id="lyrics-display" class="lyrics-display">
+                        <!-- 歌词将在此处动态加载 -->
+                        <p>请选择歌曲开始播放...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧: 播放列表 -->
+            <div class="player-section">
+                <h2 class="playlist-header">播放列表 (4 首)</h2>
+                <div id="playlist-container" class="playlist-container">
+                    <!-- 播放列表项将在此处动态加载 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部控制栏 - 始终显示 -->
+        <div class="control-bar">
+            <audio id="audio-player"></audio>
+            
+            <!-- 歌曲信息 和 LLM 按钮 (新功能) -->
+            <div class="current-track-info">
+                <div class="track-details">
+                    <span id="current-title" class="track-details-title">未选择歌曲</span>
+                    <span id="current-artist" class="track-details-artist">--</span>
+                </div>
+                <!-- 新增：歌曲解析按钮 -->
+                <button id="analyze-btn" class="control-button text-xs font-semibold py-1 px-3 border" style="border-radius: 4px; border-color: var(--primary-color); color: var(--primary-color); transition: all 0.2s;">
+                    <i data-lucide="sparkles" class="w-4 h-4 mr-1" style="display: inline-block; vertical-align: middle;"></i>
+                    歌曲解析
+                </button>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="progress-container">
+                <span id="current-time" class="time-label">0:00</span>
+                <input type="range" id="progress-bar" min="0" max="100" value="0" step="0.1" class="progress-bar-input" />
+                <span id="total-time" class="time-label right">0:00</span>
+            </div>
+
+            <!-- 播放控制与音量 -->
+            <div class="controls-and-volume">
+                
+                <!-- 控制按钮组 -->
+                <div class="controls-group">
+                    <!-- 上一首 -->
+                    <button id="prev-btn" class="control-button">
+                        <i data-lucide="skip-back" class="w-6 h-6"></i>
+                    </button>
+                    <!-- 播放/暂停 -->
+                    <button id="play-pause-btn" class="play-pause-button">
+                        <i data-lucide="play" id="play-pause-icon" class="w-6 h-6"></i>
+                    </button>
+                    <!-- 下一首 -->
+                    <button id="next-btn" class="control-button">
+                        <i data-lucide="skip-forward" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <!-- 音量控制 (已改进) -->
+                <div class="volume-control">
+                    <!-- 新增：将音量图标变为可点击的静音按钮 -->
+                    <button id="mute-btn" class="control-button" style="padding: 0;"> 
+                        <i data-lucide="volume-2" id="volume-icon" class="volume-icon w-5 h-5"></i>
+                    </button>
+                    <input type="range" id="volume-bar" min="0" max="1" value="0.75" step="0.01" class="volume-bar-input" />
+                    <span id="volume-percent" class="time-label right" style="width: auto;">75%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gemini 歌曲解析面板 (新增) -->
+    <div id="analysis-panel" class="analysis-panel">
+        <div class="analysis-header">
+            <span id="analysis-title">✨ 歌曲背景与解析</span>
+            <button id="close-analysis-btn" class="control-button" style="padding: 0;">
+                <i data-lucide="x" class="w-4 h-4 text-gray-500 hover:text-red-500"></i>
+            </button>
+        </div>
+        <div id="analysis-content" class="analysis-content">
+            <p style="text-align: center; color: var(--text-light);">点击“歌曲解析”按钮，获取当前歌曲的深度信息。</p>
+        </div>
+        <div id="analysis-sources" class="analysis-sources"></div>
+    </div>
+
+    <script>
+        // =========================================================
+        // GEMINI API 配置和函数 (新增)
+        // =========================================================
+        const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
+        const API_KEY = ""; // Canvas will provide this at runtime
+
+        async function exponentialBackoffFetch(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                    if (response.status === 429 || response.status >= 500) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        console.warn(`Request failed with status ${response.status}. Retrying in ${delay / 1000}s...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                    console.warn(`Fetch error: ${error.message}. Retrying in ${delay / 1000}s...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+        
+        async function fetchSongAnalysis() {
+            const currentTitle = currentTitleEl.textContent;
+            const currentArtist = currentArtistEl.textContent;
+
+            if (currentTitle === '未选择歌曲') {
+                displayAnalysis('<p>请先选择一首歌曲开始播放。</p>', []);
+                return;
+            }
+
+            const prompt = `请作为音乐评论家和文化学者，为歌曲《${currentTitle}》 (演唱/作者: ${currentArtist}) 写一段简短的解析。内容应包含：歌曲的背景、主题思想、以及对歌词的深度解读。请用中文写一段简洁的、约150字左右的段落。`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: {
+                    parts: [{ text: "你是一位富有洞察力的音乐评论家，提供简洁、优雅的歌曲背景和歌词深度解析，专注于情感和主题。" }]
+                },
+                tools: [{ "google_search": {} }],
+            };
+
+            displayAnalysis('<div class="spinner"></div>', []); // 显示加载动画
+            const analyzeBtn = document.getElementById('analyze-btn');
+            analyzeBtn.disabled = true;
+
+            const url = `${API_URL}?key=${API_KEY}`;
+            
+            try {
+                const result = await exponentialBackoffFetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const candidate = result.candidates?.[0];
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const text = candidate.content.parts[0].text;
+                    let sources = [];
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                        sources = groundingMetadata.groundingAttributions
+                            .map(attribution => ({
+                                uri: attribution.web?.uri,
+                                title: attribution.web?.title,
+                            }))
+                            .filter(source => source.uri && source.title);
+                    }
+                    displayAnalysis(`<p>${text}</p>`, sources);
+                } else {
+                    displayAnalysis('<p>抱歉，未能获取到歌曲解析信息。</p>', []);
+                }
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                displayAnalysis('<p>网络请求失败或 API 错误。请稍后再试。</p>', []);
+            } finally {
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        function displayAnalysis(htmlContent, sources) {
+            const panel = document.getElementById('analysis-panel');
+            const content = document.getElementById('analysis-content');
+            const sourceEl = document.getElementById('analysis-sources');
+
+            content.innerHTML = htmlContent;
+            
+            if (sources.length > 0) {
+                sourceEl.innerHTML = '来源：' + sources.map((s, i) => 
+                    `<a href="${s.uri}" target="_blank">${s.title.substring(0, 50)}...</a>${i < sources.length - 1 ? ' | ' : ''}`
+                ).join('');
+            } else {
+                sourceEl.innerHTML = '';
+            }
+
+            panel.style.display = 'flex'; // 显示面板
+        }
+
+        // 确保图标库加载完成
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initPlayer();
+        });
+
+        // =========================================================
+        // 模拟数据和核心逻辑
+        // =========================================================
+
+        const playlist = [
+            { id: 1, title: '晨光之曲', artist: '作曲家 A', duration: '3:45', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', cover: 'https://placehold.co/500x500/1677ff/ffffff?text=A' },
+            { id: 2, title: '静夜思', artist: '歌者 B', duration: '4:12', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', cover: 'https://placehold.co/500x500/1677ff/ffffff?text=B' },
+            { id: 3, title: '山涧清流', artist: '演奏家 C', duration: '2:59', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', cover: 'https://placehold.co/500x500/1677ff/ffffff?text=C' },
+            { id: 4, title: '都市漫步', artist: 'DJ D', duration: '3:30', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', cover: 'https://placehold.co/500x500/1677ff/ffffff?text=D' },
+        ];
+
+        // 模拟歌词数据：时间 (秒) -> 歌词文本
+        const mockLyrics = {
+            1: [
+                { time: 0, text: ' [00:00] 欢迎使用 Ant Design 风格播放器！' },
+                { time: 5, text: ' [00:05] 这是一款基于 VuePress 的插件。' },
+                { time: 10, text: ' [00:10] 我们重新设计了 UI。' },
+                { time: 15, text: ' [00:15] 采用纯 CSS 模拟 AntD 效果。' },
+                { time: 20, text: ' [00:20] 播放列表和歌词功能齐全。' },
+                { time: 25, text: ' [00:25] 感受一下简洁、专业的风格。' },
+                { time: 30, text: ' [00:30] 正在播放：晨光之曲。' },
+            ],
+            2: [
+                { time: 0, text: ' [00:00] 夜深了，来一首静夜思。' },
+                { time: 6, text: ' [00:06] 低沉的旋律带来平静。' },
+                { time: 12, text: ' [00:12] 让我们放松身心，享受此刻。' },
+                { time: 18, text: ' [00:18] 歌者 B 带来的美妙乐章。' },
+                { time: 25, text: ' [00:25] 沉浸在音乐的世界里。' },
+            ],
+            3: [
+                { time: 0, text: ' [00:00] 山涧清流，潺潺水声。' },
+                { time: 8, text: ' [00:08] 演奏家 C 献上纯净的音符。' },
+                { time: 16, text: ' [00:16] 节奏轻快，心情舒畅。' },
+            ],
+            4: [
+                { time: 0, text: ' [00:00] 都市漫步，节奏感十足。' },
+                { time: 4, text: ' [00:04] DJ D 的动感节拍。' },
+                { time: 8, text: ' [00:08] 准备好摇摆了吗？' },
+                { time: 12, text: ' [00:12] 享受这场听觉盛宴。' },
+            ],
+        };
+
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+        let autoPlayAfterLoad = false; // 新增标志，用于控制加载完成后是否自动播放
+
+        // =========================================================
+        // DOM 元素引用
+        // =========================================================
+        const audio = document.getElementById('audio-player');
+        const playlistContainer = document.getElementById('playlist-container');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const playPauseIcon = document.getElementById('play-pause-icon');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const volumeBar = document.getElementById('volume-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        const totalTimeEl = document.getElementById('total-time');
+        const currentTitleEl = document.getElementById('current-title');
+        const currentArtistEl = document.getElementById('current-artist');
+        const lyricsDisplay = document.getElementById('lyrics-display');
+        const albumArtEl = document.querySelector('.album-art');
+        const volumeIconEl = document.getElementById('volume-icon'); // 音量图标引用
+        const volumePercentEl = document.getElementById('volume-percent'); // 音量百分比引用
+        const muteBtn = document.getElementById('mute-btn'); // 新增静音按钮引用
+        const analyzeBtn = document.getElementById('analyze-btn'); // 新增解析按钮引用
+        const closeAnalysisBtn = document.getElementById('close-analysis-btn'); // 新增关闭按钮引用
+        const analysisPanel = document.getElementById('analysis-panel'); // 新增解析面板引用
+        
+        let lastVolume = 0.75; // 存储静音前的音量
+
+        // =========================================================
+        // 格式化时间 (秒 -> 分:秒)
+        // =========================================================
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // =========================================================
+        // 渲染播放列表
+        // =========================================================
+        function renderPlaylist() {
+            playlistContainer.innerHTML = playlist.map((track, index) => `
+                <div 
+                    class="track-item"
+                    data-index="${index}"
+                    data-id="${track.id}"
+                >
+                    <div class="track-info-main">
+                        <span class="track-index">${index + 1}.</span>
+                        <div class="track-titles">
+                            <p class="track-title">${track.title}</p>
+                            <p class="track-artist">${track.artist}</p>
+                        </div>
+                    </div>
+                    <span class="track-duration">${track.duration}</span>
+                </div>
+            `).join('');
+
+            // 添加点击事件监听器
+            document.querySelectorAll('.track-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.getAttribute('data-index'));
+                    
+                    if (index === currentTrackIndex && audio.src) {
+                         // 如果点击的是当前歌曲，则切换播放/暂停状态
+                         togglePlayPause();
+                    } else {
+                        // 如果是新歌曲，加载并请求自动播放
+                        loadTrack(index, true); 
+                    }
+                });
+            });
+
+            updatePlaylistHighlight();
+        }
+
+        // =========================================================
+        // 更新播放列表高亮状态
+        // =========================================================
+        function updatePlaylistHighlight() {
+            document.querySelectorAll('.track-item').forEach((item, index) => {
+                item.classList.remove('is-playing');
+                
+                if (index === currentTrackIndex) {
+                    item.classList.add('is-playing');
+                    // 滚动到当前播放歌曲
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        }
+
+        // =========================================================
+        // 加载歌曲
+        // =========================================================
+        function loadTrack(index, autoPlay = false) { // 增加 autoPlay 参数
+            currentTrackIndex = index;
+            const track = playlist[currentTrackIndex];
+            audio.src = track.src;
+            audio.load(); // 重新加载音频
+
+            // 设置自动播放标志，将在 loadeddata 事件中检查
+            autoPlayAfterLoad = autoPlay;
+            
+            // 更新 UI 信息
+            currentTitleEl.textContent = track.title;
+            currentArtistEl.textContent = track.artist;
+            albumArtEl.style.backgroundImage = `url('${track.cover}')`;
+            
+            // 重置进度条和时间显示
+            progressBar.value = 0;
+            currentTimeEl.textContent = '0:00';
+            totalTimeEl.textContent = track.duration; // 初始显示预设时长
+            
+            updatePlaylistHighlight();
+            renderLyrics(track.id);
+            // 每次切换歌曲时，关闭解析面板
+            analysisPanel.style.display = 'none';
+        }
+
+        // =========================================================
+        // 播放/暂停控制
+        // =========================================================
+        function playTrack() {
+            if (audio.paused) {
+                // 确保 play() 调用被 catch 处理，防止未处理的 promise 拒绝
+                audio.play().catch(e => console.error("播放失败:", e));
+                isPlaying = true;
+                playPauseIcon.setAttribute('data-lucide', 'pause');
+            }
+        }
+
+        function pauseTrack() {
+            audio.pause();
+            isPlaying = false;
+            playPauseIcon.setAttribute('data-lucide', 'play');
+        }
+
+        function togglePlayPause() {
+            if (audio.src) { // 确保有歌曲加载
+                if (isPlaying) {
+                    pauseTrack();
+                } else {
+                    playTrack();
+                }
+                // 重新渲染 Lucide Icon
+                lucide.createIcons(); 
+            } else {
+                // 如果没有歌曲，则加载第一首并播放
+                if (playlist.length > 0) {
+                    loadTrack(0, true); // 请求加载后自动播放
+                }
+            }
+        }
+        
+        // =========================================================
+        // 切换歌曲
+        // =========================================================
+        function nextTrack() {
+            const nextIndex = (currentTrackIndex + 1) % playlist.length;
+            loadTrack(nextIndex, true); // 请求加载后自动播放
+        }
+
+        function prevTrack() {
+            const prevIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+            loadTrack(prevIndex, true); // 请求加载后自动播放
+        }
+
+        // =========================================================
+        // 渲染歌词
+        // =========================================================
+        function renderLyrics(trackId) {
+            const lyrics = mockLyrics[trackId] || [{ time: 0, text: ' [00:00] 暂无歌词。' }];
+            lyricsDisplay.innerHTML = lyrics.map((line, index) => `
+                <p 
+                    class="lyric-line" 
+                    data-time="${line.time}"
+                    data-index="${index}"
+                >
+                    ${line.text}
+                </p>
+            `).join('');
+            
+            // 确保歌词区域滚动到顶部
+            lyricsDisplay.parentNode.scrollTop = 0;
+        }
+
+        // =========================================================
+        // 更新 UI 状态和歌词同步
+        // =========================================================
+        let lastLyricIndex = -1;
+        function updateUI() {
+            // 1. 更新进度条和时间
+            if (!isNaN(audio.duration)) {
+                const percentage = (audio.currentTime / audio.duration) * 100;
+                // 注意：由于我们使用的是纯 CSS 样式，需要用 JS 来动态设置进度条颜色
+                const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+                progressBar.style.background = `linear-gradient(to right, ${primaryColor} 0%, ${primaryColor} ${percentage}%, var(--border-color) ${percentage}%, var(--border-color) 100%)`;
+                
+                progressBar.value = audio.currentTime; // 进度条直接绑定 currentTime，max 在 loadedmetadata 时设置
+                currentTimeEl.textContent = formatTime(audio.currentTime);
+
+                if (totalTimeEl.textContent === '0:00' && !isNaN(audio.duration)) {
+                    totalTimeEl.textContent = formatTime(audio.duration);
+                }
+            }
+
+            // 2. 歌词同步
+            const currentTime = audio.currentTime;
+            const trackId = playlist[currentTrackIndex].id;
+            const lyrics = mockLyrics[trackId] || [];
+            
+            let currentLyricIndex = -1;
+            for (let i = 0; i < lyrics.length; i++) {
+                if (currentTime >= lyrics[i].time) {
+                    currentLyricIndex = i;
+                } else {
+                    break;
+                }
+            }
+
+            if (currentLyricIndex !== lastLyricIndex && currentLyricIndex !== -1) {
+                // 移除旧的高亮
+                const oldLyricEl = document.querySelector(`.current-lyric`);
+                if (oldLyricEl) {
+                    oldLyricEl.classList.remove('current-lyric');
+                }
+
+                // 添加新的高亮
+                const newLyricEl = document.querySelector(`.lyric-line[data-index="${currentLyricIndex}"]`);
+                if (newLyricEl) {
+                    newLyricEl.classList.add('current-lyric');
+                    
+                    // 歌词滚动：确保当前歌词位于显示区域中间
+                    const lyricContainer = lyricsDisplay.parentNode;
+                    const offset = newLyricEl.offsetTop - lyricContainer.clientHeight / 2 + newLyricEl.clientHeight / 2;
+                    lyricContainer.scrollTop = offset;
+                }
+
+                lastLyricIndex = currentLyricIndex;
+            }
+        }
+        
+        // =========================================================
+        // 切换静音
+        // =========================================================
+        function toggleMute() {
+            if (audio.muted) {
+                // 取消静音，恢复到上次的音量
+                audio.muted = false;
+                audio.volume = lastVolume > 0 ? lastVolume : 0.75; // 确保不为 0
+            } else {
+                // 静音，并保存当前音量
+                lastVolume = audio.volume;
+                audio.muted = true;
+            }
+            updateVolumeUI(audio.volume);
+        }
+        
+        // =========================================================
+        // 更新音量 UI
+        // =========================================================
+        function updateVolumeUI(volume) {
+            // 1. 更新音量图标
+            let iconName;
+            if (audio.muted || volume === 0) {
+                iconName = 'volume-x';
+            } else if (volume < 0.5) {
+                iconName = 'volume-1';
+            } else {
+                iconName = 'volume-2';
+            }
+            volumeIconEl.setAttribute('data-lucide', iconName);
+            lucide.createIcons();
+
+            // 2. 更新音量百分比显示
+            if (audio.muted) {
+                volumePercentEl.textContent = `MUTE`; 
+            } else {
+                volumePercentEl.textContent = `${Math.round(volume * 100)}%`;
+            }
+            
+            // 3. 更新滑块位置（当非静音时，滑块应反映实际音量；静音时滑块保持在静音前的位置）
+            if (!audio.muted) {
+                volumeBar.value = volume;
+            }
+            // 提示：如果希望静音时滑块移到 0，可以将这行移到 if 块外面
+        }
+
+
+        // =========================================================
+        // 初始化播放器
+        // =========================================================
+        function initPlayer() {
+            // 1. 渲染列表
+            renderPlaylist();
+            
+            // 2. 设置初始音量
+            audio.volume = lastVolume;
+            volumeBar.value = audio.volume; // 初始化滑块值
+            updateVolumeUI(audio.volume); // 初始化音量UI
+
+            // 3. 加载第一首歌（不自动播放）
+            if (playlist.length > 0) {
+                loadTrack(0);
+            }
+
+            // 4. 事件监听器
+            playPauseBtn.addEventListener('click', togglePlayPause);
+            nextBtn.addEventListener('click', nextTrack);
+            prevBtn.addEventListener('click', prevTrack);
+            muteBtn.addEventListener('click', toggleMute); // 新增静音按钮点击事件
+            analyzeBtn.addEventListener('click', fetchSongAnalysis); // 新增解析按钮事件
+            closeAnalysisBtn.addEventListener('click', () => analysisPanel.style.display = 'none'); // 关闭面板事件
+            
+            // 进度条拖动
+            progressBar.addEventListener('input', (e) => {
+                // 实时更新时间标签
+                currentTimeEl.textContent = formatTime(e.target.value);
+            });
+
+            progressBar.addEventListener('change', (e) => {
+                const seekTime = parseFloat(e.target.value);
+                audio.currentTime = seekTime;
+            });
+            
+            // 音量控制
+            volumeBar.addEventListener('input', (e) => {
+                const newVolume = parseFloat(e.target.value);
+                
+                // 如果用户通过滑块调整了音量（且音量大于0），则取消静音状态
+                if (audio.muted && newVolume > 0) {
+                    audio.muted = false;
+                }
+                
+                audio.volume = newVolume;
+                lastVolume = newVolume; // 更新 lastVolume
+                updateVolumeUI(newVolume); // 实时更新音量 UI
+            });
+
+            // 监听 audio 对象的 volumechange 事件，处理外部（如系统）音量变化或静音状态改变
+            audio.addEventListener('volumechange', () => {
+                updateVolumeUI(audio.volume);
+            });
+
+
+            // 其他音频事件
+            audio.addEventListener('timeupdate', updateUI);
+            audio.addEventListener('ended', nextTrack);
+            audio.addEventListener('loadeddata', () => {
+                // 在元数据加载后获取准确的总时长
+                if (!isNaN(audio.duration)) {
+                    totalTimeEl.textContent = formatTime(audio.duration);
+                    progressBar.setAttribute('max', audio.duration);
+                    progressBar.value = audio.currentTime;
+                }
+
+                // 如果设置了自动播放标志，则在数据加载完成后开始播放
+                if (autoPlayAfterLoad && audio.paused) {
+                    playTrack();
+                    autoPlayAfterLoad = false; // 重置标志，防止重复播放
+                }
+            });
+            audio.addEventListener('play', () => {
+                isPlaying = true;
+                playPauseIcon.setAttribute('data-lucide', 'pause');
+                lucide.createIcons();
+            });
+            audio.addEventListener('pause', () => {
+                isPlaying = false;
+                playPauseIcon.setAttribute('data-lucide', 'play');
+                lucide.createIcons();
+            });
+        }
+    </script>
+</body>
+</html>
