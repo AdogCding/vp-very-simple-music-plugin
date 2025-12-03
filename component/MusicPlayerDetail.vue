@@ -39,7 +39,7 @@
 
             <!-- 底部控制栏 - 始终显示 -->
             <div class="control-bar">
-                <audio id="audio-player"></audio>
+                <audio ref="audioRef" id="audio-player"></audio>
 
                 <!-- 歌曲信息 -->
                 <div class="current-track-info">
@@ -94,8 +94,18 @@
 
 </template>
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { SkipBack, Play, SkipForward, Volume2 } from 'lucide-vue-next'
+
+const audioRef = ref(null);
+
+const props = defineProps({
+
+});
+
+const audioVolume = ref(0.75);
+
+
 </script>
 <style lang="css" scoped>
 /* ==================================== */
