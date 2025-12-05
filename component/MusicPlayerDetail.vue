@@ -50,7 +50,7 @@
             <!-- 底部控制栏 - 始终显示 -->
             <div class="control-bar">
                 <audio ref="audioRef" id="audio-player" preload="metadata" @loadedmetadata="handleLoadMetaData"
-                    :src="currentMusicPlaying.src"></audio>
+                    @timeupdate="handleTimeUpdate" :src="currentMusicPlaying.src"></audio>
 
                 <!-- 歌曲信息 -->
                 <div class="current-track-info">
@@ -62,10 +62,12 @@
 
                 <!-- 进度条 -->
                 <div class="progress-container">
-                    <span id="current-time" class="time-label">{{ currentMusicPlaying.currentTime || '0:00' }}</span>
-                    <input type="range" id="progress-bar" min="0" :max="currentMusicPlaying.duration" value="0" step="1"
-                        @change="changeMusicProgress" class="progress-bar-input" />
-                    <span id="total-time" class="time-label right">{{ currentMusicPlaying.duration }}</span>
+                    <span id="current-time" class="time-label">{{ formatTime(currentMusicProgress) }}</span>
+                    <input type="range" id="progress-bar" min="0" :max="currentMusicPlaying.duration"
+                        v-model="currentMusicProgress" step="1" @input="changeMusicProgress"
+                        class="progress-bar-input" />
+                    <span id="total-time" class="time-label right">{{ formatTime(currentMusicPlaying.duration)
+                    }}</span>
                 </div>
 
                 <!-- 播放控制与音量 -->
@@ -78,9 +80,9 @@
                             <SkipBack class="w-6 h-6" @click="prevMusic"></SkipBack>
                         </button>
                         <!-- 播放/暂停 -->
-                        <button id="play-pause-btn" class="play-pause-button">
-                            <Play v-if="!isPlaying" id="play-pause-icon" class="w-6 h-6" @click="playOrPause"></Play>
-                            <Pause v-else id="play-pause-icon" class="w-6 h-6" @click="playOrPause"></Pause>
+                        <button id="play-pause-btn" class="play-pause-button" @click="playOrPause">
+                            <Play v-if="!isPlaying" id="play-pause-icon" class="w-6 h-6"></Play>
+                            <Pause v-else id="play-pause-icon" class="w-6 h-6"></Pause>
                         </button>
                         <!-- 下一首 -->
                         <button id="next-btn" class="control-button">
@@ -118,6 +120,7 @@ const props = defineProps({
 });
 
 const musicList = ref([])
+const currentMusicProgress = ref(0);
 const currentMusicPlaying = ref({ title: '未选择歌曲', artist: '--', cover: '', lyricUrl: '', src: '', duration: 0, currentTime: 0 });
 const currentMusicIndex = ref(0);
 const isPlaying = ref(false);
@@ -180,10 +183,15 @@ async function nextMusic() {
 
 function changeMusicProgress(event) {
     audioRef.value.currentTime = event.target.value;
+    console.log(currentMusicProgress.value)
 }
 
 function handleLoadMetaData() {
-    currentMusicPlaying.value.duration = formatTime(audioRef.value.duration);
+    currentMusicPlaying.value.duration = audioRef.value.duration;
+}
+
+function handleTimeUpdate() {
+    currentMusicProgress.value = audioRef.value.currentTime;
 }
 
 function formatTime(seconds) {
