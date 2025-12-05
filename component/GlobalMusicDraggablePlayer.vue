@@ -1,5 +1,5 @@
 <template>
-    <div v-if="musicsList && musicsList.length > 0" ref="musicDisplayButton" v-show="!open" class="music-display-button"
+    <div v-if="musicPlayerProps.isOn" ref="musicDisplayButton" v-show="!open" class="music-display-button"
         :style="buttonStyle">
         展示音乐播放器
         <a-button type="text" @click="showModal">
@@ -24,13 +24,14 @@
 <script setup>
 import MusicPlayerDetail from './MusicPlayerDetail.vue'
 import { useDraggable } from '@vueuse/core';
-import { useTemplateRef, ref, inject, watch, computed, watchEffect } from 'vue'
+import { useTemplateRef, ref, inject, watch, computed, watchEffect, onMounted } from 'vue'
 import {
     PlusOutlined
 } from '@ant-design/icons-vue';
 
 const open = ref(false)
-const musicsList = inject('musicsList')
+
+const musicPlayerProps = inject('musicPlayerProps') || { isOn: true }
 
 
 
@@ -64,42 +65,42 @@ function showModal() {
 
 
 watch([x, y], () => {
-  if (!startedDrag.value) {
-    startX.value = x.value;
-    startY.value = y.value;
-    const bodyRect = document.body.getBoundingClientRect();
-    const titleRect = modalRef.value.getBoundingClientRect();
-    dragRect.value.right = bodyRect.width - titleRect.width;
-    dragRect.value.bottom = bodyRect.height - titleRect.height;
-    preTransformX.value = transformX.value;
-    preTransformY.value = transformY.value;
-  }
-  startedDrag.value = true;
+    if (!startedDrag.value) {
+        startX.value = x.value;
+        startY.value = y.value;
+        const bodyRect = document.body.getBoundingClientRect();
+        const titleRect = modalRef.value.getBoundingClientRect();
+        dragRect.value.right = bodyRect.width - titleRect.width;
+        dragRect.value.bottom = bodyRect.height - titleRect.height;
+        preTransformX.value = transformX.value;
+        preTransformY.value = transformY.value;
+    }
+    startedDrag.value = true;
 });
 
 watch(isDragging, () => {
-  if (!isDragging) {
-    startedDrag.value = false;
-  }
+    if (!isDragging) {
+        startedDrag.value = false;
+    }
 });
 
 watchEffect(() => {
-  if (startedDrag.value) {
-    transformX.value =
-      preTransformX.value +
-      Math.min(Math.max(dragRect.value.left, x.value), dragRect.value.right) -
-      startX.value;
-    transformY.value =
-      preTransformY.value +
-      Math.min(Math.max(dragRect.value.top, y.value), dragRect.value.bottom) -
-      startY.value;
-  }
+    if (startedDrag.value) {
+        transformX.value =
+            preTransformX.value +
+            Math.min(Math.max(dragRect.value.left, x.value), dragRect.value.right) -
+            startX.value;
+        transformY.value =
+            preTransformY.value +
+            Math.min(Math.max(dragRect.value.top, y.value), dragRect.value.bottom) -
+            startY.value;
+    }
 });
 
 const transformStyle = computed(() => {
-  return {
-    transform: `translate(${transformX.value}px, ${transformY.value}px)`,
-  };
+    return {
+        transform: `translate(${transformX.value}px, ${transformY.value}px)`,
+    };
 });
 </script>
 <style lang="css" scoped>
