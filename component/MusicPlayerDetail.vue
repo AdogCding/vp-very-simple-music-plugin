@@ -33,7 +33,8 @@
                     <h2 class="playlist-header">播放列表 {{ musicList.length }}</h2>
                     <div id="playlist-container" class="playlist-container">
                         <!-- 播放列表项将在此处动态加载 -->
-                        <div v-for="(music, index) in musicList" class="track-item">
+                        <div v-for="(music, index) in musicList" @click="chooseMusic(music, index)"
+                            :class="index === currentMusicIndex ? playingMusicItemClass : unplayingMusicItemClass">
                             <div class="track-info-main">
                                 <span class="track-index">{{ index + 1 }}.</span>
                                 <div class="track-titles">
@@ -67,7 +68,7 @@
                         v-model="currentMusicProgress" step="1" @input="changeMusicProgress"
                         class="progress-bar-input" />
                     <span id="total-time" class="time-label right">{{ formatTime(currentMusicPlaying.duration)
-                    }}</span>
+                        }}</span>
                 </div>
 
                 <!-- 播放控制与音量 -->
@@ -108,7 +109,7 @@
 
 </template>
 <script setup>
-import { onMounted, ref, inject } from 'vue';
+import { onMounted, ref, inject, computed } from 'vue';
 import { SkipBack, Play, Pause, SkipForward, Volume2 } from 'lucide-vue-next'
 import axios from 'axios';
 
@@ -119,7 +120,9 @@ const props = defineProps({
     musicList: Array,
 });
 
-const musicList = ref([])
+const musicList = ref([]);
+const playingMusicItemClass = 'track-item is-playing'
+const unplayingMusicItemClass = 'track-item'
 const currentMusicProgress = ref(0);
 const currentMusicPlaying = ref({ title: '未选择歌曲', artist: '--', cover: '', lyricUrl: '', src: '', duration: 0, currentTime: 0 });
 const currentMusicIndex = ref(0);
@@ -183,7 +186,6 @@ async function nextMusic() {
 
 function changeMusicProgress(event) {
     audioRef.value.currentTime = event.target.value;
-    console.log(currentMusicProgress.value)
 }
 
 function handleLoadMetaData() {
@@ -198,6 +200,11 @@ function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+}
+
+function chooseMusic(music, idx) {
+    currentMusicPlaying.value = music;
+    currentMusicIndex.value = idx;
 }
 
 onMounted(() => {
