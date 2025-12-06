@@ -94,12 +94,14 @@
                     <!-- 音量控制 (已改进) -->
                     <div class="volume-control">
                         <!-- 新增：将音量图标变为可点击的静音按钮 -->
-                        <button id="mute-btn" class="control-button" style="padding: 0;">
+                        <button id="mute-btn" class="control-button" style="padding: 0;" @click="muteMusic">
                             <Volume2 class="volume-icon w-5 h-5"></Volume2>
                         </button>
-                        <input type="range" id="volume-bar" min="0" max="1" value="0.75" step="0.01"
-                            class="volume-bar-input" />
-                        <span id="volume-percent" class="time-label right" style="width: auto;">75%</span>
+                        <input type="range" id="volume-bar" min="0" max="1" v-model="audioVolume" step="0.01"
+                            class="volume-bar-input" @input="changeVolume" />
+                        <span id="volume-percent" class="time-label right" style="width: auto;">{{
+                            Math.round(audioVolume *
+                            100) }}%</span>
                     </div>
                 </div>
             </div>
@@ -160,7 +162,7 @@ async function fetchRemoteMusicList() {
     return []
 }
 
-const audioVolume = ref(0.75);
+const audioVolume = ref('0.75');
 
 async function loadMusic() {
     const musicListResp = await fetchRemoteMusicList()
@@ -205,6 +207,16 @@ function formatTime(seconds) {
 function chooseMusic(music, idx) {
     currentMusicPlaying.value = music;
     currentMusicIndex.value = idx;
+}
+
+function muteMusic() {
+    audioVolume.value = '0';
+    audioRef.value.volume = parseFloat(audioVolume.value);
+}
+
+function changeVolume(event) {
+    audioVolume.value = parseFloat(event.target.value).toFixed(2);
+    audioRef.value.volume = parseFloat(audioVolume.value);
 }
 
 onMounted(() => {
