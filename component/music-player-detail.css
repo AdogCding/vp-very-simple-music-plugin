@@ -82,6 +82,21 @@ body {
     align-items: center;
     justify-content: center;
     padding: 16px;
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+}
+
+/* 1. 定义关键帧动画：从 0度 旋转到 360度 */
+@keyframes spin {
+    from {
+        /* 动画开始：旋转 0 度 */
+        transform: rotate(0deg);
+    }
+
+    to {
+        /* 动画结束：旋转 360 度 */
+        transform: rotate(360deg);
+    }
 }
 
 .album-art {
@@ -90,6 +105,7 @@ body {
     background-size: cover;
     background-position: center;
     border-radius: var(--radius);
+    border-radius: 50%;
 }
 
 .lyrics-container {
