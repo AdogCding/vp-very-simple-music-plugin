@@ -1,6 +1,6 @@
 {
   "name": "vp-very-simple-music-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "vuepress plugin, playing background music",
   "main": "index.js",
   "scripts": {
