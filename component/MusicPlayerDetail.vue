@@ -14,23 +14,14 @@
                     <!-- 专辑封面 Placeholder -->
                     <div class="album-art-wrapper">
                         <div class="album-art"
-                            style="background-image: url('https://placehold.co/500x500/1677ff/ffffff?text=Album+Art');">
-                        </div>
-                    </div>
-
-                    <!-- 歌词显示区域 -->
-                    <div class="lyrics-container">
-                        <p class="lyrics-header">当前歌词：</p>
-                        <div id="lyrics-display" class="lyrics-display">
-                            <!-- 歌词将在此处动态加载 -->
-                            <p>请选择歌曲开始播放...</p>
+                            :style="{backgroundImage: `url(${currentMusicPlaying.cover})`}">
                         </div>
                     </div>
                 </div>
 
                 <!-- 右侧: 播放列表 -->
                 <div class="player-section">
-                    <h2 class="playlist-header">播放列表 {{ musicList.length }}</h2>
+                    <h2 class="playlist-header">播放列表 共{{ musicList.length }}首</h2>
                     <div id="playlist-container" class="playlist-container">
                         <!-- 播放列表项将在此处动态加载 -->
                         <div v-for="(music, index) in musicList" @click="chooseMusic(music, index)"
@@ -42,7 +33,11 @@
                                     <p class="track-artist">{{ music.artist }}</p>
                                 </div>
                             </div>
-                            <span class="track-duration">100:00</span>
+                            <div class="isometric-visualizer-container">
+                                <div class="bar bar-1"></div>
+                                <div class="bar bar-2"></div>
+                                <div class="bar bar-3"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -101,7 +96,7 @@
                             class="volume-bar-input" @input="changeVolume" />
                         <span id="volume-percent" class="time-label right" style="width: auto;">{{
                             Math.round(audioVolume *
-                            100) }}%</span>
+                                100) }}%</span>
                     </div>
                 </div>
             </div>
@@ -111,8 +106,8 @@
 
 </template>
 <script setup>
-import { onMounted, ref, inject, computed } from 'vue';
-import { SkipBack, Play, Pause, SkipForward, Volume2 } from 'lucide-vue-next'
+import {inject, onMounted, ref} from 'vue';
+import {Pause, Play, SkipBack, SkipForward, Volume2} from 'lucide-vue-next'
 import axios from 'axios';
 
 
@@ -150,12 +145,11 @@ async function fetchRemoteMusicList() {
     }
     const remoteMusicListUrl = musicPlayerProps.remoteMusicList
     try {
-        const response = await axios.post(remoteMusicListUrl, {}, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        return response
+      return await axios.post(remoteMusicListUrl, {}, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
     } catch (error) {
         console.error('Error fetching remote music list:', error);
     }
@@ -204,9 +198,12 @@ function formatTime(seconds) {
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
 }
 
-function chooseMusic(music, idx) {
+async function chooseMusic(music, idx) {
     currentMusicPlaying.value = music;
     currentMusicIndex.value = idx;
+    await audioRef.value.load();
+    await audioRef.value.play();
+    isPlaying.value = true
 }
 
 function muteMusic() {
