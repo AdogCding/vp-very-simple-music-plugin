@@ -1,24 +1,25 @@
 <template>
     <div :class="containerClass">
         <div class="vpmc:text-center vpmc:pt-6">
-            <div class="vpmc:relative vpmc:mx-auto vpmc:mb-10 vpmc:h-52 vpmc:w-52 vpmc:overflow-hidden">
+            <div class="vpmc:relative vpmc:mx-auto vpmc:mb-10 vpmc:h-52 vpmc:w-52 vpmc:aspect-square">
+                <div :class="unknownClass"></div>
                 <div
-                    class="vpmc:relative vpmc:h-full vpmc:w-full vpmc:overflow-hidden vpmc:rounded-[3rem] vpmc:shadow-2xl vpmc:bg-slate-200">
-                    <img :src="cover" alt="cover" :class="imgClass"/>
+                    class="vpmc:relative vpmc:h-full vpmc:w-full vpmc:overscroll-contain vpmc:rounded-[3rem] vpmc:shadow-2xl vpmc:bg-slate-200">
+                    <img :src="cover" alt="cover" :class="imgClass" />
                 </div>
             </div>
             <h3 class="vpmc:truncate vpmc:text-2xl vpmc:font-black vpmc:text-slate-800 vpmc:tracking-tight vpmc:mb-1">
                 {{ title }}</h3>
             <p class="vpmc:text-base vpmc:font-semibold vpmc:text-slate-400 vpmc:tracking-wide">{{
-                    artist
-                }}</p>
+                artist
+            }}</p>
         </div>
     </div>
 </template>
 
 <script setup>
-import {computed} from 'vue';
-import {toRefs} from "@vueuse/core";
+import { computed } from 'vue';
+import { toRefs } from "@vueuse/core";
 
 const props = defineProps({
     cover: String,
@@ -28,7 +29,8 @@ const props = defineProps({
     isShowList: Boolean,
 })
 
-const {cover, title, artist, isPlaying, isShowList} = toRefs(props);
+
+const { cover, title, artist, isPlaying, isShowList } = toRefs(props);
 
 const containerClass = computed(() => {
     const base = ['vpmc:relative', 'vpmc:inset-0', 'vpmc:transition-all',
