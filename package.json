@@ -24,13 +24,16 @@
     "vuepress": "^2.0.0-rc.26"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
     "@vuepress/utils": "^2.0.0-rc.19",
     "@vueuse/core": "^13.1.0",
-    "axios": "^1.13.2",
-    "@tailwindcss/cli": "^4.1.18",
     "autoprefixer": "^10.4.24",
+    "axios": "^1.13.2",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "vue": "^3.5.27"
+  }
 }

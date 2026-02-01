@@ -138,6 +138,10 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
+  .vpmc\:border-none {
+    --tw-border-style: none;
+    border-style: none;
+  }
   .vpmc\:border-white\/20 {
     border-color: var(--vpmc-color-white);
     @supports (color: color-mix(in lab, red, red)) {
