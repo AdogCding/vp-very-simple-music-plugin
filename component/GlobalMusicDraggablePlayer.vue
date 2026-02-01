@@ -1,38 +1,35 @@
 <template>
-    <div v-if="musicPlayerProps.isOn" ref="musicDisplayButton" v-show="!open" class="music-display-button"
-        :style="buttonStyle">
-        展示音乐播放器
-        <a-button type="text" @click="showModal">
-            <PlusOutlined />
-        </a-button>
-    </div>
     <div>
-        <a-modal width="1000px" v-model:open="open" :wrap-style="{ overflow: 'hidden' }" @ok="handleOk">
-            <MusicPlayerDetail></MusicPlayerDetail>
-            <template #title>
-                <div ref="modalRef" style="width: 100%;">Music Player</div>
-            </template>
-            <template #modalRender="{ originVNode }">
-                <div :style="transformStyle">
-                    <component :is="originVNode" />
+        <div
+            class="vpmc:fixed vpmc:top-1/2 vpmc:left-1/2 vpmc:z-9999 vpmc:font-sans vpmc:select-none vpmc:text-slate-800 vpmc:touch-none">
+            <button id="audio-player"
+                class="vpmc:group vpmc:relative vpmc:flex vpmc:h-14 vpmc:w-14 vpmc:items-center
+            vpmc:justify-center vpmc:rounded-full vpmc:bg-white/80 vpmc:text-indigo-600 vpmc:shadow-lg
+            vpmc:backdrop-blur-md vpmc:transition-all vpmc:duration-300 vpmc:hover:scale-110 vpmc:hover:bg-white vpmc:active:scale-95 vpmc:border vpmc:border-white/20">
+                <span v-if="isPlaying"
+                    class="vpmc:absolute vpmc:inset-0 vpmc:animate-ping vpmc:rounded-full vpmc:bg-indigo-400/20"></span>
+            </button>
+            <div class="vpmc:relative vpmc:z-10">
+                <div class="vpmc:flex vpmc:items-end vpmc:gap-0.5 vpmc:h-4">
+                    <div class="vpmc:w-1 vpmc:bg-indigo-500 vpmc:animate-[music-bar_0.8s_ease-in-out_infinite]"></div>
+                    <div class="vpmc:w-1 vpmc:bg-indigo-500 vpmc:animate-[music-bar_1.2s_ease-in-out_infinite]"></div>
+                    <div class="vpmc:w-1 vpmc:bg-indigo-500 vpmc:animate-[music-bar_1.0s_ease-in-out_infinite]"></div>
                 </div>
-            </template>
-        </a-modal>
+                <Music :size="24"></Music>
+            </div>
+        </div>
     </div>
-
 </template>
 <script setup>
-import MusicPlayerDetail from './MusicPlayerDetail.vue'
 import { useDraggable } from '@vueuse/core';
-import { useTemplateRef, ref, inject, watch, computed, watchEffect, onMounted } from 'vue'
-import {
-    PlusOutlined
-} from '@ant-design/icons-vue';
+import { computed, inject, ref, useTemplateRef, watch, watchEffect } from 'vue'
+import { Music } from 'lucide-vue-next'
+
+const isPlaying = ref(false)
 
 const open = ref(false)
 
 const musicPlayerProps = inject('musicPlayerProps') || { isOn: true }
-
 
 
 const startX = ref(0);
@@ -104,17 +101,31 @@ const transformStyle = computed(() => {
 });
 </script>
 <style lang="css" scoped>
-.music-display-button {
-    position: fixed;
-    z-index: 9999;
-    padding: 10px 10px;
-    /* 加大内边距 */
-    background: #e0e0e0;
+@keyframes music-bar {
+
+    0%,
+    100% {
+        height: 3px;
+    }
+
+    50% {
+        height: 10px;
+    }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
     border-radius: 10px;
-    box-shadow:
-        4px 4px 8px #bebebe,
-        /* 右下深色阴影 */
-        -4px -4px 8px #ffffff;
-    /* 左上浅色高光 */
+}
+
+input[type=range]::-webkit-slider-thumb {
+    pointer-events: all;
+    width: 14px;
+    height: 14px;
+    -webkit-appearance: none;
 }
 </style>
