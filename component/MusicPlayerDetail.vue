@@ -1,18 +1,26 @@
 <template>
-    <div>
-        <div></div>
+    <div id="music-player-panel" :class="containerClass"">
+        <MusicPlayerHeader></MusicPlayerHeader>
     </div>
 </template>
 <script setup>
-import { inject, onMounted, ref } from 'vue';
+import { computed, inject, onMounted, ref, toRefs } from 'vue';
 import axios from 'axios';
+import MusicPlayerHeader from './MusicPlayerHeader.vue';
 
-
-const audioRef = ref(null);
 
 const props = defineProps({
     musicList: Array,
+    isOpen: Boolean
 });
+
+const { isOpen } = toRefs(props);
+
+const audioRef = ref(null);
+
+
+
+
 
 const musicList = ref([]);
 const currentMusicProgress = ref(0);
@@ -90,7 +98,7 @@ function handleTimeUpdate() {
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    return `${minutes}: ${remainingSeconds < 10 ? '0' : ''}${remainingSeconds} `;
 }
 
 async function chooseMusic(music, idx) {
@@ -115,6 +123,4 @@ onMounted(() => {
     loadMusic()
 })
 </script>
-<style lang="css" scoped>
-@import './music-player-detail.css';
-</style>
+<style lang="css" scoped></style>
