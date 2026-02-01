@@ -6,7 +6,7 @@
                 class="vpmc:group vpmc:relative vpmc:flex vpmc:h-14 vpmc:w-14 vpmc:items-center
                 vpmc:justify-center vpmc:rounded-full vpmc:bg-white/80 vpmc:text-indigo-600 vpmc:shadow-lg
                 vpmc:backdrop-blur-md vpmc:transition-all vpmc:duration-300 vpmc:hover:scale-110 vpmc:hover:bg-white vpmc:active:scale-95 vpmc:border vpmc:border-white/20">
-                <span
+                <span v-if="isDragging"
                     class="vpmc:absolute vpmc:inset-0 vpmc:animate-ping vpmc:rounded-full vpmc:bg-indigo-500/20"></span>
                 <div
                     class="vpmc:relative vpmc:z-10 vpmc:pointer-events-none vpmc:text-indigo-600 vpmc:flex vpmc:flex-col vpmc:items-center">
@@ -19,7 +19,7 @@
                         </div>
                     </div>
                     <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="lucide lucide-music-icon lucide-music">
                             <path d="M9 18V5l12-2v13" />
@@ -45,7 +45,7 @@ const musicPlayerProps = inject('musicPlayerProps') || { isOn: true }
 
 const buttonRef = useTemplateRef('musicDisplayButton')
 
-const { style: buttonStyle, x, y } = useDraggable(buttonRef, {
+const { style: buttonStyle, isDragging } = useDraggable(buttonRef, {
     initialValue: { x: 100, y: 100 },
 })
 

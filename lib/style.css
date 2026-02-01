@@ -15,6 +15,9 @@
   }
 }
 @layer utilities {
+  .vpmc\:pointer-events-none {
+    pointer-events: none;
+  }
   .vpmc\:absolute {
     position: absolute;
   }
@@ -69,6 +72,9 @@
   .vpmc\:touch-none {
     touch-action: none;
   }
+  .vpmc\:flex-col {
+    flex-direction: column;
+  }
   .vpmc\:items-center {
     align-items: center;
   }
@@ -94,14 +100,14 @@
       border-color: color-mix(in oklab, var(--vpmc-color-white) 20%, transparent);
     }
   }
-  .vpmc\:bg-indigo-400\/20 {
-    background-color: var(--vpmc-color-indigo-400);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--vpmc-color-indigo-400) 20%, transparent);
-    }
-  }
   .vpmc\:bg-indigo-500 {
     background-color: var(--vpmc-color-indigo-500);
+  }
+  .vpmc\:bg-indigo-500\/20 {
+    background-color: var(--vpmc-color-indigo-500);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--vpmc-color-indigo-500) 20%, transparent);
+    }
   }
   .vpmc\:bg-white\/80 {
     background-color: var(--vpmc-color-white);
