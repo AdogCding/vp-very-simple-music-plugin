@@ -27,7 +27,6 @@
     "@vuepress/utils": "^2.0.0-rc.19",
     "@vueuse/core": "^13.1.0",
     "axios": "^1.13.2",
-    "lucide-vue-next": "^0.555.0",
     "@tailwindcss/cli": "^4.1.18",
     "autoprefixer": "^10.4.24",
     "postcss": "^8.5.6",

@@ -13,8 +13,7 @@
                 <div class="player-section" style="display: flex; flex-direction: column; gap: 16px;">
                     <!-- 专辑封面 Placeholder -->
                     <div class="album-art-wrapper">
-                        <div class="album-art"
-                            :style="{backgroundImage: `url(${currentMusicPlaying.cover})`}">
+                        <div class="album-art" :style="{ backgroundImage: `url(${currentMusicPlaying.cover})` }">
                         </div>
                     </div>
                 </div>
@@ -106,8 +105,8 @@
 
 </template>
 <script setup>
-import {inject, onMounted, ref} from 'vue';
-import {Pause, Play, SkipBack, SkipForward, Volume2} from 'lucide-vue-next'
+import { inject, onMounted, ref } from 'vue';
+import { Pause, Play, SkipBack, SkipForward, Volume2 } from 'lucide-vue-next'
 import axios from 'axios';
 
 
@@ -145,10 +144,10 @@ async function fetchRemoteMusicList() {
     }
     const remoteMusicListUrl = musicPlayerProps.remoteMusicList
     try {
-      return await axios.post(remoteMusicListUrl, {}, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
+        return await axios.post(remoteMusicListUrl, {}, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
     } catch (error) {
         console.error('Error fetching remote music list:', error);
