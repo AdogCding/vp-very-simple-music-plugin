@@ -1,18 +1,17 @@
 <template>
     <div :class="containerClass">
-        <div class="vpmc:text-center vpmc:pt-6">
-            <div class="vpmc:relative vpmc:mx-auto vpmc:mb-10 vpmc:h-52 vpmc:w-52 vpmc:aspect-square">
+        <div class="text-center pt-6">
+            <div class="relative mx-auto mb-10 h-52 w-52 aspect-square">
                 <div :class="unknownClass"></div>
-                <div
-                    class="vpmc:relative vpmc:h-full vpmc:w-full vpmc:overscroll-contain vpmc:rounded-[3rem] vpmc:shadow-2xl vpmc:bg-slate-200">
+                <div class="relative h-full w-full overscroll-contain rounded-[3rem] shadow-2xl bg-slate-200">
                     <img :src="cover" alt="cover" :class="imgClass" />
                 </div>
             </div>
-            <h3 class="vpmc:truncate vpmc:text-2xl vpmc:font-black vpmc:text-slate-800 vpmc:tracking-tight vpmc:mb-1">
+            <h3 class="truncate text-2xl font-black text-slate-800 tracking-tight mb-1">
                 {{ title }}</h3>
-            <p class="vpmc:text-base vpmc:font-semibold vpmc:text-slate-400 vpmc:tracking-wide">{{
+            <p class="text-base font-semibold text-slate-400 tracking-wide">{{
                 artist
-            }}</p>
+                }}</p>
         </div>
     </div>
 </template>
@@ -33,31 +32,31 @@ const props = defineProps({
 const { cover, title, artist, isPlaying, isShowList } = toRefs(props);
 
 const containerClass = computed(() => {
-    const base = ['vpmc:relative', 'vpmc:inset-0', 'vpmc:transition-all',
-        'vpmc:duration-700', 'vpmc:ease-in-out', 'vpmc:px-10']
+    const base = ['relative', 'inset-0', 'transition-all',
+        'duration-700', 'ease-in-out', 'px-10']
     if (isShowList.value) {
-        return base.concat(['vpmc:-translate-x-full', 'vpmc:opacity-0'])
+        return base.concat(['-translate-x-full', 'opacity-0'])
     }
-    return base.concat(['vpmc:translate-x-0', 'vpmc:opacity-100'])
+    return base.concat(['translate-x-0', 'opacity-100'])
 })
 
 const unknownClass = computed(() => {
-    const base = ['vpmc:absolute', 'vpmc:inset-0', 'vpmc:bg-indigo-500', 'vpmc:rounded-full',
-        'vpmc:blur-[40px]',
-        'vpmc:opacity-20', 'vpmc:transition-opacity', 'vpmc:duration-1000']
+    const base = ['absolute', 'inset-0', 'bg-indigo-500', 'rounded-full',
+        'blur-[40px]',
+        'opacity-20', 'transition-opacity', 'duration-1000']
     if (isPlaying.value) {
-        base.concat(['vpmc:opacity-40', 'vpmc:animate-pulse'])
+        base.concat(['opacity-40', 'animate-pulse'])
     }
-    return base.concat(['vpmc:opacity-0'])
+    return base.concat(['opacity-0'])
 })
 
 const imgClass = computed(() => {
     const base = [
-        'vpmc:h-full', 'vpmc:w-full', 'vpmc:object-cover', 'vpmc:transition-all', 'vpmc:duration-1000'
+        'h-full', 'w-full', 'object-cover', 'transition-all', 'duration-1000'
     ]
     if (isPlaying.value) {
-        base.concat(['vpmc:animate-[spin_40s_linear_infinite]', 'vpmc:rounded-full scale-90'])
+        base.concat(['animate-[spin_40s_linear_infinite]', 'rounded-full scale-90'])
     }
-    return base.concat(['vpmc:rounded-3xl']);
+    return base.concat(['rounded-3xl']);
 })
 </script>
