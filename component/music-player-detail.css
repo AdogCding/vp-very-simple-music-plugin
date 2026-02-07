@@ -1,0 +1,655 @@
+/* ==================================== */
+/* 1. 全局配置与 Ant Design 变量 */
+/* ==================================== */
+.scroll-container {
+    --primary-color: #1677ff;
+    /* Ant Design Blue */
+    --primary-hover: #4096ff;
+    --border-color: #d9d9d9;
+    --bg-light: #f5f5f5;
+    /* 类似 AntD 的背景色 */
+    --bg-card: #ffffff;
+    --text-dark: #333;
+    --text-light: #666;
+    --radius: 8px;
+    --shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 1px rgba(0, 0, 0, 0.02);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    background-color: var(--bg-light);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+/* ==================================== */
+/* 2. 播放器主容器 (已优化：新增 min-width) */
+/* ==================================== */
+.player-card {
+    width: 100%;
+    max-width: 1200px;
+    /* 确保在手机上内容不会被过度压缩 */
+    min-width: 360px;
+    background-color: var(--bg-card);
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--radius);
+    padding: 32px;
+}
+
+.player-header {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-dark);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+}
+
+/* ==================================== */
+/* 3. 核心布局 (响应式) */
+/* ==================================== */
+.player-core {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+@media (min-width: 1024px) {
+    .player-core {
+        flex-direction: row;
+    }
+
+    .player-section {
+        width: 50%;
+    }
+}
+
+/* ==================================== */
+/* 4. 专辑封面与歌词区域 */
+/* ==================================== */
+.album-art-wrapper {
+    background-color: #e6f7ff;
+    /* light blue background */
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+}
+
+/* 1. 定义关键帧动画：从 0度 旋转到 360度 */
+@keyframes spin {
+    from {
+        /* 动画开始：旋转 0 度 */
+        transform: rotate(0deg);
+    }
+
+    to {
+        /* 动画结束：旋转 360 度 */
+        transform: rotate(360deg);
+    }
+}
+
+.album-art {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius);
+    border-radius: 50%;
+}
+
+.lyrics-container {
+    background-color: #f6f6f6;
+    padding: 16px;
+    border-radius: var(--radius);
+    height: 256px;
+    overflow-y: scroll;
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.lyrics-header {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+}
+
+.lyrics-display {
+    text-align: center;
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.current-lyric {
+    color: var(--primary-color);
+    font-weight: 600;
+    transform: scale(1.05);
+    transition: all 0.2s ease-in-out;
+    font-size: 18px;
+}
+
+/* 自定义滚动条美化 */
+.lyrics-container::-webkit-scrollbar,
+.playlist-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.lyrics-container::-webkit-scrollbar-thumb,
+.playlist-container::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 10px;
+}
+
+.lyrics-container::-webkit-scrollbar-thumb:hover,
+.playlist-container::-webkit-scrollbar-thumb:hover {
+    background-color: #a8a8a8;
+}
+
+/* ==================================== */
+/* 5. 播放列表区域 */
+/* ==================================== */
+.playlist-header {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+}
+
+.playlist-container {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    height: 384px;
+    overflow-y: scroll;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-top: none;
+    /* AntD 列表通常没有顶部分隔线 */
+}
+
+.track-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    cursor: pointer;
+    transition: background-color 0.15s, box-shadow 0.15s;
+    border-bottom: 1px solid #f0f0f0;
+    /* 列表分割线 */
+}
+
+.track-item:last-child {
+    border-bottom: none;
+}
+
+.track-item:hover {
+    background-color: var(--primary-color, #1677ff);
+    /* Primary color with 10% opacity */
+}
+
+.track-info-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    overflow: hidden;
+}
+
+.track-index {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-light);
+    width: 24px;
+    text-align: center;
+}
+
+.track-titles {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.track-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.track-artist {
+    font-size: 12px;
+    color: var(--text-light);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.track-duration {
+    font-size: 12px;
+    color: #ccc;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+/* 播放列表高亮状态 */
+.track-item.is-playing {
+    background-color: rgba(22, 119, 255, 0.1);
+    box-shadow: inset 3px 0 0 var(--primary-color);
+    /* 左侧指示条 */
+}
+
+.track-item.is-playing .track-title,
+.track-item.is-playing .track-artist {
+    color: var(--primary-color);
+}
+
+/* ==================================== */
+/* 6. 底部控制栏 */
+/* ==================================== */
+.control-bar {
+    background-color: var(--bg-light);
+    padding: 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    margin-top: 24px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.current-track-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.track-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.track-details-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-details-artist {
+    font-size: 14px;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 进度条样式 */
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.time-label {
+    font-size: 12px;
+    color: var(--text-light);
+    width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.time-label.right {
+    text-align: left;
+}
+
+.progress-bar-input {
+    flex-grow: 1;
+    height: 4px;
+    background-color: var(--border-color);
+    border-radius: 2px;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.progress-bar-input::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    transition: all 0.2s;
+}
+
+.progress-bar-input:hover::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+    box-shadow: 0 0 0 4px rgba(22, 119, 255, 0.2);
+}
+
+/* 播放控制与音量 (已优化：允许换行) */
+.controls-and-volume {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* 允许在小屏幕上自动换行 */
+    flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+
+    /* 确保在非常小的手机屏幕上，控制组和音量控制能换行对齐 */
+    .controls-and-volume {
+        justify-content: center;
+        /* 居中对齐 */
+        gap: 16px;
+        /* 增加换行后的间距 */
+    }
+
+    .volume-control {
+        /* 在窄屏上，音量控制占据全部宽度 */
+        width: 100%;
+        justify-content: center;
+    }
+
+    .controls-group {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+.controls-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.control-button {
+    border: none;
+    background: none;
+    color: var(--text-light);
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: color 0.15s, background-color 0.15s;
+}
+
+.control-button:hover {
+    color: var(--primary-color);
+    background-color: rgba(22, 119, 255, 0.05);
+}
+
+.play-pause-button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 16px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(22, 119, 255, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.play-pause-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(22, 119, 255, 0.7);
+    background-color: var(--primary-hover);
+}
+
+.play-pause-button svg {
+    fill: white;
+}
+
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* 移除固定的 160px 宽度，让它随内容变化 */
+}
+
+.volume-icon {
+    color: var(--text-light);
+}
+
+.volume-bar-input {
+    flex-grow: 1;
+    height: 4px;
+    background-color: var(--border-color);
+    border-radius: 2px;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.volume-bar-input::-webkit-slider-thumb {
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    /* 修复：添加回退值 #1677ff 以确保在伪元素中样式能正确加载 */
+    background: var(--primary-color, #1677ff);
+}
+
+.volume-bar-input:hover::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.2);
+}
+
+/* 隐藏原生的音频元素 */
+#audio-player {
+    display: none;
+}
+
+/* ========== Gemini Analysis Panel Styles ========== */
+.analysis-panel {
+    position: fixed;
+    bottom: 120px;
+    /* 放在控制栏上方 */
+    right: 20px;
+    width: 320px;
+    max-height: 450px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+}
+
+.analysis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.analysis-content {
+    padding: 16px;
+    overflow-y: auto;
+    font-size: 14px;
+    color: var(--text-dark);
+    flex-grow: 1;
+}
+
+.analysis-content p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.analysis-sources {
+    font-size: 10px;
+    padding: 8px 16px;
+    border-top: 1px solid #f0f0f0;
+    color: var(--text-light);
+    line-height: 1.4;
+}
+
+.analysis-sources a {
+    color: var(--primary-color);
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.analysis-sources a:hover {
+    text-decoration: underline;
+}
+
+/* Loading Spinner Style */
+.spinner {
+    border: 4px solid rgba(22, 119, 255, 0.2);
+    border-left-color: var(--primary-color);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.scroll-container {
+    max-height: 80vh;
+    overflow: auto;
+    padding-right: 8px;
+}
+
+
+.isometric-visualizer-container {
+    /* 容器基础样式 */
+    position: relative;
+    /* 确保子元素可以定位 */
+    width: 24px;
+    /* 可根据需要调整大小 */
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    /* 防止溢出 */
+    cursor: pointer;
+    /* 提示可点击 */
+
+    /* 等轴测视角的核心 */
+    transform: rotateX(45deg) rotateZ(45deg);
+    /* 视角旋转 */
+    transform-style: preserve-3d;
+    /* 保持3D效果 */
+    perspective: 1000px;
+    /* 景深，可选 */
+
+    /* 默认（未播放）状态 */
+    border-radius: 2px;
+    background-color: rgba(150, 150, 150, 0.2);
+    /* 浅灰色背景 */
+    transition: background-color 0.3s ease;
+    /* 背景色过渡 */
+}
+
+/* 播放状态下的容器样式 */
+.isometric-visualizer-container.is-playing {
+    background-color: rgba(60, 200, 100, 0.3);
+    /* 播放时更亮的背景 */
+}
+
+.bar {
+    position: absolute;
+    width: 4px;
+    /* 柱子宽度 */
+    bottom: 0;
+    background: linear-gradient(to top, #4CAF50, #8BC34A);
+    /* 绿色渐变 */
+    opacity: 0.6;
+    /* 半透明效果 */
+    border-radius: 1px;
+    /* 略带圆角 */
+    transform-origin: bottom;
+    /* 动画从底部开始 */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    /* 透明度和缩放过渡 */
+}
+
+/* 调整每个柱子的位置和初始高度 */
+.bar-1 {
+    left: 6px;
+    height: 8px;
+    /* 默认高度 */
+}
+
+.bar-2 {
+    left: 10px;
+    height: 12px;
+}
+
+.bar-3 {
+    left: 14px;
+    height: 10px;
+}
+
+/* 播放状态下的动画 */
+.is-playing .bar {
+    animation: bar-wave 1.5s ease-in-out infinite alternate;
+    /* 动画循环 */
+    opacity: 1;
+    /* 播放时更亮 */
+    background: linear-gradient(to top, #6DD5ED, #2193B0);
+    /* 播放时蓝色渐变 */
+}
+
+/* 给不同柱子设置不同的动画延迟，使其看起来更自然 */
+.is-playing .bar-1 {
+    animation-delay: 0s;
+}
+
+.is-playing .bar-2 {
+    animation-delay: 0.2s;
+}
+
+.is-playing .bar-3 {
+    animation-delay: 0.4s;
+}
+
+@keyframes bar-wave {
+    0% {
+        transform: scaleY(0.5);
+        /* 初始缩放 */
+        filter: brightness(0.8);
+    }
+
+    50% {
+        transform: scaleY(1.2);
+        /* 中间最大高度 */
+        filter: brightness(1.2);
+    }
+
+    100% {
+        transform: scaleY(0.7);
+        /* 结束缩放 */
+        filter: brightness(0.9);
+    }
+}
