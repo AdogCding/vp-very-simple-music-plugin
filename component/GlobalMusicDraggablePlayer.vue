@@ -31,7 +31,7 @@
             <div ref="musicPlayerPanel" :style="panelStyle">
                 <div :class="panelClass">
                     <MusicPlayerHeader @close-player="closePlayer" @toggle-view="toggleView"></MusicPlayerHeader>
-                    <div class="vpmc:relative vpmc:h-[24rem] vpmc:overflow-hidden">
+                    <div class="vpmc:relative vpmc:h-96 vpmc:overflow-hidden">
                         <MusicPlayerScreen :is-playing="isPlaying"
                                            :is-show-list="isShowList"
                                            :artist="currentSong.artist"
@@ -39,6 +39,7 @@
                                            :cover="currentSong.cover"
                         ></MusicPlayerScreen>
                     </div>
+                    <MusicPlayerController/>
                 </div>
             </div>
         </div>
@@ -50,6 +51,7 @@ import axios from 'axios';
 import {computed, inject, ref, useTemplateRef, onMounted} from 'vue'
 import MusicPlayerHeader from './MusicPlayerHeader.vue';
 import MusicPlayerScreen from "./MusicPlayerScreen.vue";
+import MusicPlayerController from "./MusicPlayerController.vue";
 
 const panelClass = computed(() => {
     const baseClass = [
