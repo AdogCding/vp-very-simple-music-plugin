@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div className="flex items-center justify-between p-6 pb-2">
-            <button class="border-none" @click="toggleView" :class="buttonClass">
+        <div class="flex items-center justify-between p-6 pb-2">
+            <button type="button" class="border-none" @click="toggleView" :class="buttonClass">
                 <div v-if="isShowingList">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -19,10 +19,10 @@
                     </svg>
                 </div>
             </button>
-            <span className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-300">
+            <span class="text-[11px] font-black uppercase tracking-[0.3em] text-slate-300">
                 {{ isShowingList ? 'Track List' : 'Playing Now' }}
             </span>
-            <button @click="closePlayer"
+            <button type="button" @click="closePlayer"
                 class="rounded-full border-none p-2 text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -34,13 +34,14 @@
     </div>
 </template>
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
-const isShowingList = ref(false);
+const props = defineProps({
+    isShowingList: Boolean,
+})
 const emit = defineEmits(['toggleView', 'closePlayer']);
 const toggleView = () => {
     emit('toggleView');
-    isShowingList.value = !isShowingList.value;
 }
 const closePlayer = () => {
     emit('closePlayer');
@@ -51,7 +52,7 @@ const buttonClass = computed(() => {
         'p-2.5',
         'rounded-2xl',
     ];
-    if (isShowingList.value) {
+    if (props.isShowingList) {
         return baseClass.concat('bg-indigo-50', 'text-indigo-600');
     } else {
         return baseClass.concat('text-slate-400', 'hover:text-indigo-500', 'hover:bg-slate-50');

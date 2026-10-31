@@ -109,7 +109,7 @@
 </template>
 <script setup>
 import {inject, onMounted, ref} from 'vue';
-import axios from 'axios';
+import {loadMusicList} from '../lib/loadMusicList.js';
 
 
 const audioRef = ref(null);
@@ -147,36 +147,21 @@ async function playOrPause() {
     isPlaying.value = !isPlaying.value;
 }
 
-const musicPlayerProps = inject('musicPlayerProps')
-
-async function fetchRemoteMusicList() {
-    if (!musicPlayerProps.remoteMusicList) {
-        return []
-    }
-    const remoteMusicListUrl = musicPlayerProps.remoteMusicList
-    try {
-        return await axios.post(remoteMusicListUrl, {}, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-    } catch (error) {
-        console.error('Error fetching remote music list:', error);
-    }
-    return []
-}
+const musicPlayerProps = inject('musicPlayerProps') || {}
+const musicSourceMode = inject('musicSourceMode') || 'local'
+const configuredMusicList = inject('musicList') || []
 
 const audioVolume = ref('0.75');
 
 async function loadMusic() {
-    const musicListResp = await fetchRemoteMusicList()
-    if (!musicListResp) {
-        return
-    }
-    const {data: remoteMusicList} = musicListResp
-    if (remoteMusicList.length > 0) {
-        currentMusicPlaying.value = remoteMusicList[0];
-        musicList.value = remoteMusicList
+    const list = await loadMusicList({
+        mode: musicSourceMode,
+        musicList: configuredMusicList,
+        remoteMusicList: musicPlayerProps.remoteMusicList,
+    })
+    if (list.length > 0) {
+        currentMusicPlaying.value = list[0];
+        musicList.value = list
     }
 }
 
